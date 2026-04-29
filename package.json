@@ -1,0 +1,7 @@
+{
+  "name": "ams",
+  "version": "1.0.0",
+  "description": "a protocol for access to the free net",
+  "private": true,
+  "license": "MIT"
+}
