@@ -56,30 +56,21 @@ export default async function handler(request) {
     });
   }
 
-  const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), 10_000);
-  const withPayload = request.method !== "GET" && request.method !== "HEAD";
-
   try {
+    const withPayload = request.method !== "GET" && request.method !== "HEAD";
+
     const upstream = await fetch(getDestination(BASE_URL, request.url), {
       method: request.method,
       headers: sanitizeHeaders(request.headers),
       body: withPayload ? request.body : undefined,
       duplex: "half",
       redirect: "manual",
-      signal: ac.signal,
     });
 
-    clearTimeout(t);
     return upstream;
 
   } catch (ex) {
-    clearTimeout(t);
-    const timeout = ex?.name === "AbortError";
     console.error("proxy error:", ex?.message);
-    return new Response(
-      timeout ? "Gateway Timeout" : "Bad Gateway: Tunnel Failed",
-      { status: timeout ? 504 : 502 }
-    );
+    return new Response("Bad Gateway: Tunnel Failed", { status: 502 });
   }
 }
